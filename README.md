@@ -9,3 +9,9 @@ based on the information in it.
 
 It only does [ELPA](http://elpa.gnu.org) right now but it could do any
 repository (marmalade or MELPA) easily.
+
+## requirements
+
+You need to:
+
+pip install sexpdata
