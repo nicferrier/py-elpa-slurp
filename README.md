@@ -14,4 +14,6 @@ repository (marmalade or MELPA) easily.
 
 You need to:
 
+```
 pip install sexpdata
+```
