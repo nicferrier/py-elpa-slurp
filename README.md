@@ -7,5 +7,5 @@ This code is designed to do that.
 It slurps the archive-contents from ELPA and then downloads each file
 based on the information in it.
 
-It only does (ELPA)[http://elpa.gnu.org] right now but it could do any
+It only does [ELPA](http://elpa.gnu.org) right now but it could do any
 repository (marmalade or MELPA) easily.
