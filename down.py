@@ -2,6 +2,8 @@ import sexpdata
 import httplib
 import sys
 import os
+import urlparse
+import ssl
 
 class ExtensionError(Exception):
     pass
@@ -17,18 +19,24 @@ def type_to_extension(type):
     else:
         raise ExtensionError(type)
 
-def download_archive():
-    h = httplib.HTTPConnection("elpa.gnu.org")
+def download_archive(host, directory):
+    url_bits = urlparse.urlparse(host)
+    h = httplib.HTTPConnection(url_bits.netloc)
+    if url_bits.scheme == "https":
+        insecure_context = ssl._create_unverified_context()
+        h = httplib.HTTPSConnection(url_bits.netloc,context=insecure_context)
+
     h.request("GET", "/packages/archive-contents")
     response = h.getresponse()
     if response.status == 200:
+        print url_bits.netloc + " archive-contents retrieved"
         body = response.read()
 
         try:
-            os.makedirs("downloads")
+            os.makedirs(directory)
         except:
             pass
-        with open("downloads/archive-contents", "w") as fd:
+        with open(directory + "/archive-contents", "w") as fd:
             fd.write(body)
             
         packages = sexpdata.loads(body)[2:]
@@ -42,13 +50,22 @@ def download_archive():
                 down_response = h.getresponse()
                 if down_response.status == 200:
                     body = down_response.read()
-                    with open("downloads/" + package_url, "w") as fd:
+                    with open(directory + "/" + package_url, "w") as fd:
                         fd.write(body)
             except:
                 print package_name.value(), " had an error", sys.exc_info()
-                h = httplib.HTTPConnection("elpa.gnu.org")
+                h = httplib.HTTPConnection(url_bits.netloc)
+                if url_bits.scheme == "https":
+                    insecure_context = ssl._create_unverified_context()
+                    h = httplib.HTTPSConnection(url_bits.netloc,context=insecure_context)
+
+config = {
+    "http://elpa.gnu.org": "elpa",
+    "https://melpa.org": "melpa"
+}
 
 if __name__ == "__main__":
-    download_archive()
+    for host, directory in config.items():
+        download_archive(host, directory)
 
 # End
